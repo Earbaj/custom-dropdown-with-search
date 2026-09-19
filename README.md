@@ -1,222 +1,337 @@
+# Custom Dropdown List with Search
 
-## Custom Dropdown Search
-A custom dropdown search widget for Flutter, designed to provide a clean and customizable search experience in dropdown lists. It supports dark mode, theming, and customizable items.
+[![pub package](https://img.shields.io/pub/v/customedropdownlistwithsearch.svg?logo=dart)](https://pub.dev/packages/customedropdownlistwithsearch)
+[![pub points](https://img.shields.io/pub/points/customedropdownlistwithsearch?color=2E8B57&label=pub%20points)](https://pub.dev/packages/customedropdownlistwithsearch/score)
+[![license](https://img.shields.io/github/license/Earbaj/custom-dropdown-with-search)](https://github.com/Earbaj/custom-dropdown-with-search/blob/master/LICENSE)
+[![GitHub stars](https://img.shields.io/github/stars/Earbaj/custom-dropdown-with-search?style=social)](https://github.com/Earbaj/custom-dropdown-with-search)
 
-## Features
+A feature-packed, lightweight, and customizable searchable dropdown package for Flutter. Supports single and multi-selection, async/remote API search with debouncing, infinite pagination, custom item builders, form validation, grouped categories, clear buttons, keyboard navigation, and automatic dark/light theme adaptation without requiring any external state management provider.
 
-- Customizable dropdown search widget
-- Supports dark and light mode theming
-- Easy integration with any Flutter app
-- Can be used with various item types (Strings, models, etc.)
+---
 
+## ✨ Features
 
-## Installation
+- 🔍 **Searchable Dropdown**: Fast, real-time client-side search filtering.
+- 👥 **Multi-Select Support**: Select multiple items with headers, tags, and custom list builders.
+- 🌐 **Async / Remote Search**: Search from remote APIs with built-in debouncing and custom loading indicators.
+- 📜 **Infinite Scrolling / Pagination**: Lazy-load large datasets on-demand as the user scrolls.
+- 🎨 **Custom Item & Header Builders**: Complete control over how items and headers look (avatars, icons, badges, subtitles).
+- 🧹 **Clear / Reset Button**: One-tap clear selection button.
+- 🛡️ **Form Validation**: Native `validator` and `listValidator` integration with Flutter `Form` and `FormField`.
+- 📁 **Grouped / Categorized Dropdown**: Organize items into sections with custom category headers.
+- 🌓 **Automatic Dark / Light Theming**: Seamlessly adapts to system or app theme with zero setup and no `ProviderNotFoundException`.
+- ⌨️ **Keyboard Navigation & Desktop / Web**: Optimized for mobile, web, and desktop.
+- ⚡ **High Performance**: Built with virtualized `ListView.builder` for rendering thousands of items smoothly.
 
-To use the package, first add the following dependency to your `pubspec.yaml`:
+---
 
-    dependencies:
-        custom_dropdown_search: ^0.0.1  # Replace with the current version
+## 📦 Installation
 
+Add `customedropdownlistwithsearch` to your `pubspec.yaml`:
 
+```yaml
+dependencies:
+  customedropdownlistwithsearch: ^1.1.0
+```
 
-## Usage
-    import 'package:flutter/material.dart';
-    import 'package:custom_dropdown_search/custom_dropdown_search.dart';
+Then run:
 
-    void main() {
-        runApp(MyApp());
-    }
+```bash
+flutter pub get
+```
 
-    class MyApp extends StatelessWidget {
-        @override
-        Widget build(BuildContext context) {
-            return MaterialApp(
-                title: 'Custom Dropdown Search Demo',
-                theme: ThemeData(
-                primarySwatch: Colors.blue,
-            ),
-            home: DropdownSearchExample(),
-        );
-    }
+Import it in your Dart file:
+
+```dart
+import 'package:customedropdownlistwithsearch/customedropdownlistwithsearch.dart';
+```
+
+---
+
+## 🚀 Usage Examples
+
+### 1. Basic Single Select
+
+```dart
+import 'package:flutter/material.dart';
+import 'package:customedropdownlistwithsearch/customedropdownlistwithsearch.dart';
+
+class SingleSelectExample extends StatefulWidget {
+  const SingleSelectExample({super.key});
+
+  @override
+  State<SingleSelectExample> createState() => _SingleSelectExampleState();
 }
 
-    class DropdownSearchExample extends StatefulWidget {
-        @override
-        _DropdownSearchExampleState createState() => _DropdownSearchExampleState();
-    }
+class _SingleSelectExampleState extends State<SingleSelectExample> {
+  final List<String> fruits = ['Apple', 'Banana', 'Orange', 'Mango', 'Pineapple'];
+  String? selectedFruit;
 
-    class _DropdownSearchExampleState extends State<DropdownSearchExample> {
-        List<String> employees = [
-        "John Doe",
-        "Jane Smith",
-        "Bob Johnson",
-        "Alice White",
-        "Charlie Brown",
-      ];
-
-      String? selectedEmployee;
-
-      @override
-      Widget build(BuildContext context) {
-        return Scaffold(
-        appBar: AppBar(
-        title: Text("Custom Dropdown Search Demo"),
-        ),
-        body: Padding(
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Single Select Dropdown')),
+      body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: CustomDropdownSearch<String>(
-          items: employees,   // List of items
-          hintText: "Select Employee",  // Placeholder text
+          items: fruits,
+          hintText: 'Select a fruit',
           onChanged: (value) {
             setState(() {
-              selectedEmployee = value;  // Handle value changes
+              selectedFruit = value;
             });
           },
         ),
       ),
     );
+  }
 }
+```
+
+---
+
+### 2. Multi-Select Dropdown
+
+Select multiple items effortlessly using either `CustomDropdownSearch.multiSelectSearch` or `CustomDropdownMultiSearch`:
+
+```dart
+CustomDropdownSearch<String>.multiSelectSearch(
+  items: const ['Flutter', 'Dart', 'React Native', 'Kotlin', 'Swift'],
+  hintText: 'Select programming skills',
+  onListChanged: (selectedList) {
+    print('Selected: $selectedList');
+  },
+)
+```
+
+---
+
+### 3. Async / Remote Search (API with Debounce)
+
+Fetch search results dynamically from your backend API:
+
+```dart
+CustomDropdownSearch<String>.searchRequest(
+  futureRequest: (query) async {
+    // Call your API with debounce (default 300ms)
+    await Future.delayed(const Duration(milliseconds: 500));
+    final allUsers = ['Alice', 'Bob', 'Charlie', 'David', 'Emma'];
+    return allUsers
+        .where((user) => user.toLowerCase().contains(query.toLowerCase()))
+        .toList();
+  },
+  futureRequestDelay: const Duration(milliseconds: 300),
+  hintText: 'Search users from API...',
+  onChanged: (selectedUser) {
+    print('Selected user: $selectedUser');
+  },
+)
+```
+
+---
+
+### 4. Custom Object Model with Custom Builders
+
+Customize list items and header with avatars, subtitles, and icons:
+
+```dart
+class User {
+  final String id;
+  final String name;
+  final String role;
+
+  const User({required this.id, required this.name, required this.role});
+
+  @override
+  String toString() => name;
 }
 
-## Usage with Custom Objects (Model)
-You can also use the dropdown with custom data types like models. Here’s an example using an Employee model:
+// Widget implementation:
+CustomDropdownSearch<User>(
+  items: const [
+    User(id: '1', name: 'John Doe', role: 'Developer'),
+    User(id: '2', name: 'Sarah Connor', role: 'Product Manager'),
+    User(id: '3', name: 'Michael Scott', role: 'Regional Manager'),
+  ],
+  hintText: 'Select team member',
+  headerBuilder: (context, user, enabled) {
+    return Row(
+      children: [
+        CircleAvatar(radius: 12, child: Text(user.name[0])),
+        const SizedBox(width: 8),
+        Text(user.name, style: const TextStyle(fontWeight: FontWeight.bold)),
+      ],
+    );
+  },
+  listItemBuilder: (context, user, isSelected, onItemSelect) {
+    return ListTile(
+      leading: CircleAvatar(child: Text(user.name[0])),
+      title: Text(user.name),
+      subtitle: Text(user.role),
+      selected: isSelected,
+      onTap: onItemSelect,
+    );
+  },
+  onChanged: (user) {
+    print('Selected: ${user?.name}');
+  },
+)
+```
 
-    import 'package:flutter/material.dart';
-    import 'package:custom_dropdown_search/custom_dropdown_search.dart';
+---
 
-    class Employee {
-        final String id;
-        final String name;
+### 5. Form Validation
 
-        Employee({required this.id, required this.name});
-    }
+Integrates directly with Flutter's `Form` and `FormState`:
 
-    void main() {
-        runApp(MyApp());
-    }
+```dart
+final _formKey = GlobalKey<FormState>();
 
-    class MyApp extends StatelessWidget {
-        @override
-        Widget build(BuildContext context) {
-          return MaterialApp(
-          title: 'Custom Dropdown Search with Model',
-          theme: ThemeData(
-          primarySwatch: Colors.blue,
-        ),
-        home: DropdownWithModelExample(),
-        );
-      }
-    }
-
-    class DropdownWithModelExample extends StatefulWidget {
-        @override
-        _DropdownWithModelExampleState createState() => _DropdownWithModelExampleState();
-    }
-
-    class _DropdownWithModelExampleState extends State<DropdownWithModelExample> {
-          List<Employee> employees = [
-          Employee(id: "1", name: "John Doe"),
-          Employee(id: "2", name: "Jane Smith"),
-          Employee(id: "3", name: "Bob Johnson"),
-          ];
-
-          Employee? selectedEmployee;
-
-          @override
-          Widget build(BuildContext context) {
-          return Scaffold(
-          appBar: AppBar(
-          title: Text("Dropdown with Model Example"),
-        ),
-        body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: CustomDropdownSearch<Employee>(
-              items: employees,  // List of employee objects
-              hintText: "Select Employee",
-              onChanged: (value) {
-                setState(() {
-                  selectedEmployee = value;  // Handle value change
-                });
-              },
-            ),
-          ),
-        );
-      }
-    }
-
-## Custom Theming
-You can customize the appearance of the dropdown by changing colors, text styles, and more based on the current theme. Here's an example of customizing the dropdown for dark and light modes:
-
-    import 'package:flutter/material.dart';
-    import 'package:custom_dropdown_search/custom_dropdown_search.dart';
-
-    class ThemedDropdownSearch extends StatelessWidget {
-        final List<String> items = ["Option 1", "Option 2", "Option 3"];
-
-    @override
-    Widget build(BuildContext context) {
-      bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
-
-      return Scaffold(
-        appBar: AppBar(
-          title: Text("Custom Themed Dropdown"),
+Form(
+  key: _formKey,
+  child: Column(
+    children: [
+      CustomDropdownSearch<String>(
+        items: const ['HR', 'Engineering', 'Marketing', 'Finance'],
+        hintText: 'Select Department',
+        validator: (value) {
+          if (value == null || value.isEmpty) {
+            return 'Please select a department';
+          }
+          return null;
+        },
+        onChanged: (val) {},
       ),
-          body: Padding(
-            padding: const EdgeInsets.all(16.0),
-              child: CustomDropdownSearch<String>(
-                items: items,
-                hintText: "Select an Option",
-                onChanged: (value) {},
-                // Custom theme for the dropdown
-                decoration: CustomDropdownDecoration(
-                closedFillColor: isDarkMode ? Colors.grey.shade800 : Colors.white,
-                expandedFillColor: isDarkMode ? Colors.grey.shade900 : Colors.white,
-                headerStyle: TextStyle(color: isDarkMode ? Colors.white : Colors.black),
-                listItemStyle: TextStyle(color: isDarkMode ? Colors.white : Colors.black),
-                hintStyle: TextStyle(color: isDarkMode ? Colors.white : Colors.grey),
-              ),
-            ),
-          ),
-       );
-      }
-    }
+      const SizedBox(height: 16),
+      ElevatedButton(
+        onPressed: () {
+          if (_formKey.currentState!.validate()) {
+            // Form is valid!
+          }
+        },
+        child: const Text('Submit'),
+      ),
+    ],
+  ),
+)
+```
 
-## CustomDropdownDecoration
+---
 
-This class allows you to customize the dropdown's appearance. The available fields include:
+### 6. Grouped / Categorized Items
 
-closedFillColor: The background color of the dropdown when it's closed.
-expandedFillColor: The background color of the dropdown when it's expanded.
-headerStyle: The text style for the header.
-listItemStyle: The text style for the list items.
-hintStyle: The text style for the hint text.
-noResultFoundStyle: The text style when no search results are found.
-## CustomDropdownDecoration
-This class allows you to customize the dropdown's appearance. The available fields include:
+Group items by category with styled headers:
 
-- closedFillColor: The background color of the dropdown when it's closed.
-- expandedFillColor: The background color of the dropdown when it's expanded.
-- headerStyle: The text style for the header.
-- listItemStyle: The text style for the list items.
-- hintStyle: The text style for the hint text.
-- noResultFoundStyle: The text style when no search results are found.
+```dart
+final items = [
+  {'name': 'Laptop', 'category': 'Electronics'},
+  {'name': 'Headphones', 'category': 'Electronics'},
+  {'name': 'Desk Chair', 'category': 'Furniture'},
+  {'name': 'Standing Desk', 'category': 'Furniture'},
+];
 
+CustomDropdownSearch<Map<String, String>>(
+  items: items,
+  groupBy: (item) => item['category']!,
+  headerBuilder: (context, item, _) => Text(item['name']!),
+  listItemBuilder: (context, item, isSelected, onItemSelect) {
+    return ListTile(
+      title: Text(item['name']!),
+      onTap: onItemSelect,
+    );
+  },
+  onChanged: (item) {},
+)
+```
 
-## Example Customization
+---
 
-    CustomDropdownSearch<String>(
-        items: ["Option 1", "Option 2", "Option 3"],
-        onChanged: (value) => print("Selected: $value"),
-        hintText: "Select an Option",
-        decoration: CustomDropdownDecoration(
-            closedFillColor: Colors.blue,
-            expandedFillColor: Colors.lightBlue,
-            headerStyle: TextStyle(color: Colors.white),
-            listItemStyle: TextStyle(color: Colors.black),
-        ),
-    )
+### 7. Controllers & Clear Button
 
-## License
+Programmatically control or clear selection:
 
-This package is licensed under the [MIT](https://choosealicense.com/licenses/mit/) License. See the LICENSE file for more information.
+```dart
+final controller = SingleSelectController<String?>('Option 1');
 
+// Clear selection:
+controller.clear();
+
+// Select new value:
+controller.select('Option 2');
+
+// In widget:
+CustomDropdownSearch<String>(
+  items: const ['Option 1', 'Option 2', 'Option 3'],
+  controller: controller,
+  canClearSelection: true, // Displays clear (X) button
+  onChanged: (val) {},
+)
+```
+
+---
+
+### 8. Custom Theming & Dark Mode
+
+The dropdown automatically detects light and dark mode from `Theme.of(context)`. You can also customize colors and styles using `CustomDropdownDecoration`:
+
+```dart
+CustomDropdownSearch<String>(
+  items: const ['Dark Item 1', 'Dark Item 2'],
+  hintText: 'Custom styled dropdown',
+  onChanged: (val) {},
+  decoration: CustomDropdownDecoration(
+    closedFillColor: Colors.blueGrey.shade900,
+    expandedFillColor: Colors.blueGrey.shade800,
+    closedBorder: Border.all(color: Colors.blueAccent),
+    closedBorderRadius: BorderRadius.circular(16),
+    headerStyle: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+    listItemStyle: const TextStyle(color: Colors.white70),
+    hintStyle: const TextStyle(color: Colors.grey),
+    searchFieldDecoration: SearchFieldDecoration(
+      fillColor: Colors.blueGrey.shade700,
+      textStyle: const TextStyle(color: Colors.white),
+      hintStyle: const TextStyle(color: Colors.white54),
+      prefixIcon: const Icon(Icons.search, color: Colors.blueAccent),
+    ),
+  ),
+)
+```
+
+---
+
+## 🛠️ API Reference
+
+| Parameter | Type | Description |
+| :--- | :--- | :--- |
+| `items` | `List<T>?` | List of items to display in the dropdown. |
+| `onChanged` | `ValueChanged<T?>?` | Callback when selection changes in single-select mode. |
+| `onListChanged` | `ValueChanged<List<T>>?` | Callback when selection changes in multi-select mode. |
+| `initialItem` | `T?` | Pre-selected item for single-selection. |
+| `initialItems` | `List<T>?` | Pre-selected items for multi-selection. |
+| `hintText` | `String` | Placeholder text when no item is selected. |
+| `searchHintText` | `String` | Placeholder text for the search input field. |
+| `noResultFoundText` | `String` | Text shown when no search match is found. |
+| `validator` | `FormFieldValidator<T>?` | Form field validator for single selection. |
+| `listValidator` | `FormFieldValidator<List<T>>?` | Form field validator for multi-selection. |
+| `validateOnChange` | `bool` | Whether to validate immediately when selection changes. |
+| `futureRequest` | `Future<List<T>> Function(String)?` | Async callback to fetch items from remote API based on query. |
+| `futureRequestDelay` | `Duration?` | Debounce duration for async search (default 300ms). |
+| `searchRequestLoadingIndicator` | `Widget?` | Custom loader displayed while fetching async data. |
+| `paginatedRequest` | `PaginatedSearchRequest<T>?` | Callback for infinite scroll / pagination loading. |
+| `listItemBuilder` | `DropdownListItemBuilder<T>?` | Custom builder for each dropdown list item. |
+| `headerBuilder` | `DropdownHeaderBuilder<T>?` | Custom builder for closed single-select header. |
+| `headerListBuilder` | `DropdownHeaderListBuilder<T>?` | Custom builder for closed multi-select header. |
+| `groupBy` | `String Function(T item)?` | Function returning category name for grouping items. |
+| `groupHeaderBuilder` | `DropdownGroupHeaderBuilder?` | Custom builder for category section headers. |
+| `canClearSelection` | `bool` | Whether to display a clear (X) button on selected items. |
+| `controller` | `SingleSelectController<T?>?` | State controller for single selection. |
+| `multiSelectController` | `MultiSelectController<T>?` | State controller for multi selection. |
+| `decoration` | `CustomDropdownDecoration?` | Styling options for colors, borders, and text styles. |
+| `overlayDirection` | `DropdownOverlayDirection` | Direction to open overlay (`auto`, `below`, `above`). |
+| `enableHapticFeedback` | `bool` | Triggers subtle haptic feedback on item selection (default `true`). |
+
+---
+
+## 📄 License
+
+This project is licensed under the [MIT License](LICENSE).
